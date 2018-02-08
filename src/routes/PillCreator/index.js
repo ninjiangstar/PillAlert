@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import PillCreationForm from '../../containers/PillCreationForm';
 import PillCreatorCancelButton from '../../containers/PillCreatorCancelButton';
-import PillCreatorCreateButton from '../../containers/PillCreatorCreateButton';
 
 export default class Dashboard extends Component {
 
   static navigationOptions = {
-    headerTitle: 'New Medication',
+    headerTitle: 'New Prescription',
     headerLeft: <PillCreatorCancelButton />,
-    headerRight: <PillCreatorCreateButton />,
   };
 
   render = () => (

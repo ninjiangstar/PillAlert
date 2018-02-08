@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, AsyncStorage } from 'react-native';
 
 import {
   addNavigationHelpers,
@@ -19,20 +19,11 @@ import thunk from 'redux-thunk';
 import RootNavigator from './routes';
 import reducers from './redux';
 
-const middleware = createReactNavigationReduxMiddleware(
-  'root',
-  state => state.navigation,
-);
+const middleware = createReactNavigationReduxMiddleware('root', state => state.nav);
 const addListener = createReduxBoundAddListener('root');
 
 const App = ({ dispatch, nav: state }) => (
-  <RootNavigator
-    navigation={addNavigationHelpers({
-      dispatch,
-      state,
-      addListener,
-    })}
-  />
+  <RootNavigator navigation={addNavigationHelpers({ dispatch, state, addListener })} />
 );
 
 App.propTypes = {
@@ -44,18 +35,36 @@ const mapStateToProps = ({ nav }) => ({ nav });
 
 const AppWithNavigationState = connect(mapStateToProps)(App);
 
-const store = createStore(
-  reducers,
-  applyMiddleware(
-    middleware,
-    thunk,
-  ),
-);
+class Root extends Component {
 
-const Root = () => (
-  <Provider store={store}>
-    <AppWithNavigationState />
-  </Provider>
-);
+  state = {
+    storeLoaded: false,
+  };
+
+  componentWillMount = async () => {
+    const persistedStateFromStorage = await AsyncStorage.getItem('@PillAlert:ReduxStore');
+    const persistedState = persistedStateFromStorage ? JSON.parse(persistedStateFromStorage) : {};
+    this.store = createStore(
+      reducers,
+      persistedState,
+      applyMiddleware(
+        middleware,
+        thunk,
+      ),
+    );
+
+    this.setState({ storeLoaded: true });
+
+    this.store.subscribe(() => {
+      AsyncStorage.setItem('@PillAlert:ReduxStore', JSON.stringify(this.store.getState()));
+    });
+  }
+
+  render = () => (this.state.storeLoaded ? (
+    <Provider store={this.store}>
+      <AppWithNavigationState />
+    </Provider>
+  ) : null);
+}
 
 AppRegistry.registerComponent('PillAlert', () => Root);

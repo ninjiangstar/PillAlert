@@ -5,23 +5,25 @@ import { View, Text, StyleSheet } from 'react-native';
 export default class PillCard extends PureComponent {
 
   static propTypes = {
-    title: PropTypes.string.isRequired,
-    desc: PropTypes.string.isRequired,
-    cautions: PropTypes.arrayOf(PropTypes.shape({
-      key: PropTypes.string,
-      value: PropTypes.string,
-    })).isRequired,
+    drugName: PropTypes.string.isRequired,
+    instructions: PropTypes.string.isRequired,
+    // cautions: PropTypes.arrayOf(PropTypes.shape({
+    //   key: PropTypes.string,
+    //   value: PropTypes.string,
+    // })).isRequired,
+    cautions: PropTypes.string.isRequired,
+    pillCount: PropTypes.number.isRequired,
   };
 
   _renderTitle = () => (
     <View style={styles.title}>
-      <Text style={styles.titleText}>{this.props.title}</Text>
+      <Text style={styles.titleText}>{this.props.drugName}</Text>
     </View>
   );
 
-  _renderCautionItem = ({ key, value }) => (
-    <Text style={styles.cautionItem} key={key}>{value}</Text>
-  );
+  // _renderCautionItem = ({ key, value }) => (
+  //   <Text style={styles.cautionItem} key={key}>{value}</Text>
+  // );
 
   _renderActions = () => (
     <View style={styles.actions}>
@@ -32,7 +34,7 @@ export default class PillCard extends PureComponent {
 
   _renderRefillButton = () => (
     <View style={styles.refillButton}>
-      <Text style={[styles.buttonLargeText, styles.buttonTextDisabled]}>28</Text>
+      <Text style={[styles.buttonLargeText, styles.buttonTextDisabled]}>{this.props.pillCount}</Text>
       <Text style={[styles.buttonSmallText, styles.buttonTextDisabled]}>COUNT</Text>
     </View>
   );
@@ -47,10 +49,10 @@ export default class PillCard extends PureComponent {
     <View style={styles.card}>
       {this._renderTitle()}
       <View style={styles.cardInnerPadding}>
-        <Text style={styles.descText}>{this.props.desc}</Text>
+        <Text style={styles.descText}>{this.props.instructions}</Text>
       </View>
       <View style={styles.cardInnerPadding}>
-        {this.props.cautions.map(this._renderCautionItem)}
+        <Text style={styles.cautionItem}>{this.props.cautions}</Text>
       </View>
       {this._renderActions()}
     </View>
