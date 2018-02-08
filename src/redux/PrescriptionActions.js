@@ -16,6 +16,38 @@ function createPrescription(unfilteredData) {
   };
 }
 
+function takeDose(key) {
+  return (dispatch, getState) => {
+    const { rx } = getState();
+    const itemIndex = rx.prescriptions.findIndex(item => parseInt(item.key, 10) === parseInt(key, 10));
+    const itemRef = rx.prescriptions[itemIndex];
+    dispatch({
+      type: 'Prescription/TakeDose',
+      key,
+      index: itemIndex,
+      pillCount: itemRef.pillCount - itemRef.pillsPerDose,
+      nextNotification: Date.now() + (3600000 * (16 / itemRef.dosesPerDay)),
+      // for the MVP, we assume average wake-time of a user is 24 hours
+      // and the notification for the next pill is (24 / dose frequency) hours
+      // which isn't realistic, but takes a more involved calculation
+    });
+  };
+}
+
+function notify(key) {
+  return (dispatch, getState) => {
+    const { rx } = getState();
+    const itemIndex = rx.prescriptions.findIndex(item => parseInt(item.key, 10) === parseInt(key, 10));
+    dispatch({
+      type: 'Prescription/Notify',
+      key,
+      index: itemIndex,
+    });
+  };
+}
+
 export default {
   createPrescription,
+  takeDose,
+  notify,
 };

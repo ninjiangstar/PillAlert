@@ -13,10 +13,11 @@ export default class Dashboard extends Component {
 
   static propTypes = {
     prescriptions: PropTypes.array.isRequired,
+    takeDose: PropTypes.func.isRequired,
   }
 
   _renderCard = ({ item }) => (
-    <PillCard {...item} />
+    <PillCard onPressCompleteTask={() => this.props.takeDose(item.key)} {...item} />
   );
 
   render = () => (

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Button, Keyboard } from 'react-native';
+import { View, Button, Keyboard, Text } from 'react-native';
 
 import InputField from '../../components/InputField';
 
@@ -23,40 +23,46 @@ export default class PillCreationForm extends Component {
     dosesPerDay: '',
     pillsPerDose: '',
     rx: '',
+    submitError: false,
   };
 
   _onChangeTextDrugName = (text) => {
-    this.setState({ drugName: text.toUpperCase() });
+    this.setState({ drugName: text.toUpperCase(), submitError: false });
   };
 
   _onChangeTextInstructions = (text) => {
-    this.setState({ instructions: text });
+    this.setState({ instructions: text, submitError: false });
   };
 
   _onChangeTextCautions = (text) => {
-    this.setState({ cautions: text }); // each newline is a new item on the list
+    this.setState({ cautions: text, submitError: false }); // each newline is a new item on the list
   };
 
   _onChangeTextPillCount = (text) => {
-    this.setState({ pillCount: text.replace(/\D/g, '') }); // strip non-numeric characters
+    this.setState({ pillCount: text.replace(/\D/g, ''), submitError: false }); // strip non-numeric characters
   };
 
   _onChangeTextDosesPerDay = (text) => {
-    this.setState({ dosesPerDay: text.replace(/\D/g, '') }); // strip non-numeric characters
+    this.setState({ dosesPerDay: text.replace(/\D/g, ''), submitError: false }); // strip non-numeric characters
   };
 
   _onChangeTextPillsPerDone = (text) => {
-    this.setState({ pillsPerDose: text.replace(/\D/g, '') }); // strip non-numeric characters
+    this.setState({ pillsPerDose: text.replace(/\D/g, ''), submitError: false }); // strip non-numeric characters
   };
 
   _onChangeTextRx = (text) => {
-    this.setState({ rx: text });
+    this.setState({ rx: text, submitError: false });
   };
 
   _onPressCreate = () => {
-    Keyboard.dismiss();
-    this.props.createPrescription(this.state);
-    this.props.pop();
+
+    if (!this.state.drugName.length || !this.state.instructions.length || !this.state.pillCount.length || !this.state.dosesPerDay.length || !this.state.pillsPerDose.length) {
+      this.setState({ submitError: true });
+    } else {
+      Keyboard.dismiss();
+      this.props.createPrescription(this.state);
+      this.props.pop();
+    }
   };
 
   render = () => (
@@ -130,6 +136,13 @@ export default class PillCreationForm extends Component {
           color="rgb(140, 193, 82)"
           onPress={this._onPressCreate}
         />
+        {this.state.submitError ? (<Text style={{
+          color: 'rgb(209, 49, 53)',
+          fontSize: 14,
+          fontWeight: '700',
+          textAlign: 'center',
+        }}
+        >Drug Name, Instructions, Pill Count, Doses/day, and Pills/dose are required.</Text>) : null}
       </View>
     </View>
   );

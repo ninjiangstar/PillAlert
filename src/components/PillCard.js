@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default class PillCard extends PureComponent {
 
@@ -13,7 +13,17 @@ export default class PillCard extends PureComponent {
     // })).isRequired,
     cautions: PropTypes.string.isRequired,
     pillCount: PropTypes.number.isRequired,
+    dosesPerDay: PropTypes.number.isRequired,
+    pillsPerDose: PropTypes.number.isRequired,
+    nextNotification: PropTypes.number.isRequired,
+    onPressCompleteTask: PropTypes.func.isRequired,
   };
+
+  _isActive = () => this.props.nextNotification <= Date.now();
+
+  _needsRefill = () => this.props.pillCount < 2 * (this.props.dosesPerDay * this.props.pillsPerDose)
+
+  _getHoursLeft = () => ((this.props.nextNotification - Date.now()) / 3600000).toFixed(2)
 
   _renderTitle = () => (
     <View style={styles.title}>
@@ -32,18 +42,27 @@ export default class PillCard extends PureComponent {
     </View>
   );
 
-  _renderRefillButton = () => (
-    <View style={styles.refillButton}>
+  _renderRefillButton = () => (this._needsRefill() ? (
+    <View style={styles.refillButtonActive}>
+      <Text style={[styles.buttonLargeText]}>{this.props.pillCount}</Text>
+      <Text style={[styles.buttonSmallText]}>NEED REFILL?</Text>
+    </View>
+  ) : (
+    <View style={styles.refillButtonDisabled}>
       <Text style={[styles.buttonLargeText, styles.buttonTextDisabled]}>{this.props.pillCount}</Text>
       <Text style={[styles.buttonSmallText, styles.buttonTextDisabled]}>COUNT</Text>
     </View>
-  );
+  ));
 
-  _renderCompleteTaskButton = () => (
+  _renderCompleteTaskButton = () => (this._isActive() ? (
+    <TouchableOpacity onPress={this.props.onPressCompleteTask} style={[styles.completeTaskButton, styles.completeTaskButtonActive]}>
+      <Text style={[styles.buttonLargeText]}>TAKE DOSE NOW</Text>
+    </TouchableOpacity>
+  ) : (
     <View style={[styles.completeTaskButton, styles.completeTaskButtonDisabled]}>
-      <Text style={[styles.buttonLargeText, styles.buttonTextDisabled]}>TAKE NOW</Text>
+      <Text style={[styles.buttonLargeText, styles.buttonTextDisabled]}>TAKE DOSE IN {this._getHoursLeft()} HRS...</Text>
     </View>
-  );
+  ));
 
   render = () => (
     <View style={styles.card}>
@@ -96,11 +115,19 @@ const styles = StyleSheet.create({
     margin: 5,
     height: 60,
   },
-  refillButton: {
+  refillButtonDisabled: {
     backgroundColor: 'rgb(229, 229, 229)',
     borderRadius: 5,
     justifyContent: 'center',
     paddingHorizontal: 10,
+  },
+  refillButtonActive: {
+    backgroundColor: '#ef5350',
+    borderRadius: 5,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    borderBottomWidth: 5,
+    borderBottomColor: '#e53935',
   },
   completeTaskButton: {
     flex: 1,
@@ -108,15 +135,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginLeft: 5,
   },
-  // completeTaskButtonActive: {
-  //   backgroundColor: 'rgb(140, 193, 82)',
-  //   borderRadius: 5,
-  //   flex: 1,
-  //   marginLeft: 5,
-  //   justifyContent: 'center',
-  //   borderBottomWidth: 5,
-  //   borderBottomColor: 'rgb(126, 175, 74)',
-  // },
+  completeTaskButtonActive: {
+    backgroundColor: 'rgb(140, 193, 82)',
+    borderRadius: 5,
+    flex: 1,
+    marginLeft: 5,
+    justifyContent: 'center',
+    borderBottomWidth: 5,
+    borderBottomColor: 'rgb(126, 175, 74)',
+  },
   completeTaskButtonDisabled: {
     backgroundColor: 'rgb(229, 229, 229)',
   },
